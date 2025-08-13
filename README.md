@@ -1,50 +1,106 @@
-# Welcome to your Expo app 👋
+# Secure Document Vault
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A **mobile-first secure storage application** built with React Native, designed for storing, organizing, and sharing sensitive documents like identification cards, certificates, and legal files.  
+The app focuses on **security, speed, and offline reliability**, ensuring that critical documents are accessible anytime, anywhere.
 
-## Get started
+---
 
-1. Install dependencies
+## 📌 Features
 
+- **🔒 Secure File Storage**  
+  End-to-end encryption on-device before upload (AES-256). Files remain private even to the service provider.
+
+- **📂 Categorized Organization**  
+  Create folders for IDs, certificates, legal docs, and more for clean document management.
+
+- **📶 Offline-First Access**  
+  Local caching with **PouchDB** for accessing files without internet. Syncs automatically when online.
+
+- **🛡 Multi-Factor Authentication (MFA)**  
+  Periodic MFA prompts and re-authentication for sensitive actions (view, download, delete).
+
+- **⏱ Time-Limited Secure Links**  
+  Generate temporary access links with custom expiration times (e.g., 5 min, 1 hr, 24 hrs).
+
+- **🔍 Fast Search**  
+  Metadata-based search with instant results from the local cache.
+
+---
+
+## 🏗 Tech Stack
+
+### **Frontend**
+- [React Native](https://reactnative.dev/) — Cross-platform mobile development.
+- [PouchDB](https://pouchdb.com/) — Offline-first local database with sync capabilities.
+- Biometric authentication APIs (FaceID, TouchID).
+
+### **Backend**
+- [Node.js](https://nodejs.org/) + [Express](https://expressjs.com/) — RESTful API.
+- [PostgreSQL](https://www.postgresql.org/) — Metadata & user management.
+- [CouchDB](https://couchdb.apache.org/) — Sync for offline-first approach.
+- [Redis](https://redis.io/) — Optional caching and time-limited link tracking.
+
+### **Cloud Infrastructure**
+- [Google Cloud Storage](https://cloud.google.com/storage) — Secure file storage.
+- [Google Cloud SQL](https://cloud.google.com/sql) — Managed PostgreSQL.
+- [Google Cloud Functions](https://cloud.google.com/functions) — Time-limited link generation, MFA triggers.
+- [Google IAM](https://cloud.google.com/iam) — Access management & role-based permissions.
+
+---
+
+## 🔐 Security
+
+- **Encryption**: AES-256 for files, TLS 1.3 for network communication.
+- **Authentication**: JWT + MFA.
+- **Access Control**: Role-Based Access Control (RBAC).
+- **Time-Limited URLs**: Signed URLs for controlled, temporary file access.
+- **Device Loss Protection**: Remote logout & session invalidation.
+
+---
+
+## 🚀 Development Phases
+
+### **Phase 1 — MVP**
+- User registration/login with MFA.
+- File upload, categorization, and retrieval.
+- Offline-first access with PouchDB.
+
+### **Phase 2 — Security & Sharing**
+- Implement time-limited link sharing.
+- Device loss protection features.
+
+### **Phase 3 — Expansion**
+- Batch uploads.
+- Add new categories (e.g., healthcare records).
+
+---
+
+## 📈 Expected Benefits
+
+- Reliable access to important files even in low connectivity.
+- Peace of mind through strong encryption and MFA.
+- Simple, intuitive user experience for all age groups.
+
+---
+
+## 🛠 Installation & Setup (Dev Environment)
+
+1. **Clone the Repository**
+   ```bash
+   git clone https://github.com/yourusername/secure-document-vault.git
+   cd secure-document-vault
+2. **Install Dependencies**
    ```bash
    npm install
-   ```
 
-2. Start the app
-
+3. **Configure Environment Variables**
    ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+   DATABASE_URL=your_postgres_url
+    COUCHDB_URL=your_couchdb_url
+    GCP_PROJECT_ID=your_project_id
+    GCP_BUCKET_NAME=your_bucket
+    JWT_SECRET=your_secret
+4. **Run the backend**
+   ```bash
+   cd backend
+   npm start  
