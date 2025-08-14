@@ -1,19 +1,20 @@
-"use client"
 
-import { Ionicons } from "@expo/vector-icons"
-import type React from "react"
-import { useState } from "react"
-import { SafeAreaView, ScrollView, StatusBar, Text, TouchableOpacity, View } from "react-native"
+import ActionButtons from "@/components/action-buttons"
 import AddFolderModal from "@/components/add-folder-modal"
 import GhanaCard3D from "@/components/card-component"
 import { images } from "@/constants/images"
-import ActionButtons from "@/components/action-buttons"
+import { Ionicons } from "@expo/vector-icons"
+import { LinearGradient } from "expo-linear-gradient"
+import { router } from "expo-router"
+import type React from "react"
+import { useState } from "react"
+import { Platform, SafeAreaView, ScrollView, StatusBar, Text, TouchableOpacity, View } from "react-native"
 
 interface Folder {
   id: string
   name: string
   noteCount: number
-  color: string
+  color: readonly [string, string]
   icon: string
 }
 
@@ -23,14 +24,14 @@ const MainScreenWithModal: React.FC = () => {
       id: "1",
       name: "Government ID's",
       noteCount: 0,
-      color: "bg-gray-400",
+      color: ["#60A5FA", "#A78BFA"] as const,
       icon: "document-text",
     },
     {
       id: "2",
       name: "Documents",
       noteCount: 0,
-      color: "bg-gray-400",
+      color: ["#60A5FA", "#A78BFA"] as const,
       icon: "document-text",
     },
   ])
@@ -41,16 +42,17 @@ const MainScreenWithModal: React.FC = () => {
     setAddFolderVisible(true)
   }
 
-  const handleCreateFolder = (name: string, color: string, icon: string) => {
-    const newFolder: Folder = {
-      id: Date.now().toString(),
-      name,
-      noteCount: 0,
-      color,
-      icon,
-    }
-    setFolders([...folders, newFolder])
+const handleCreateFolder = (name: string, color: [string, string], icon: string) => {
+  const newFolder: Folder = {
+    id: Date.now().toString(),
+    name,
+    noteCount: 0,
+    color,
+    icon,
   }
+  setFolders([...folders, newFolder])
+}
+
 
   const handleQuickNote = () => {
     console.log("Quick note")
@@ -61,7 +63,12 @@ const MainScreenWithModal: React.FC = () => {
   }
 
   return (
-    <SafeAreaView className="flex-1">
+    <SafeAreaView style={{
+    flex: 1,
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
+
+  }}
+   className="flex-1">
       <StatusBar barStyle="dark-content" backgroundColor="#f9fafb" />
 
       {/* Header */}
@@ -96,14 +103,23 @@ const MainScreenWithModal: React.FC = () => {
         {folders.map((folder) => (
           <TouchableOpacity
             key={folder.id}
-            onPress={() => handleFolderPress(folder.id)}
-            className="flex-row items-center bg-white rounded-2xl p-4 mb-4 shadow-[2px_2px_2px_rgba(0,0,0,0.1)] "
-          >
-            <View
-              className={`w-14 h-14 bg-gradient-to-br ${folder.color} rounded-2xl items-center justify-center mr-4`}
+            onPress={()=> {router.push("/screens/folder-details")}}
+            className="flex-row items-center bg-white rounded-2xl p-4 mb-4 shadow-[2px_2px_2px_rgba(0,0,0,0.1)] ">
+            <LinearGradient
+              colors={folder.color}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={{
+                width: 56,
+                height: 56,
+                borderRadius: 16,
+                alignItems: "center",
+                justifyContent: "center",
+                marginRight: 16
+              }}
             >
-              <Ionicons name={folder.icon as any} size={24} color="white" />
-            </View>
+            <Ionicons name={folder.icon as any} size={24} color="black" />
+          </LinearGradient>
 
             <View className="flex-1">
               <Text style={{ fontFamily: "Gilroy-SemiBold" }} className="text-lg font-semibold text-gray-800 mb-1">

@@ -1,9 +1,20 @@
 "use client"
 
+import React, { useState } from "react"
+  import type { ColorValue } from "react-native";
 import { Ionicons } from "@expo/vector-icons"
-import type React from "react"
-import { useState } from "react"
-import { Modal, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from "react-native"
+import {
+  Modal,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
+  KeyboardAvoidingView,
+  Platform,
+} from "react-native"
+import { LinearGradient } from "expo-linear-gradient";
+
 
 interface AddFolderModalProps {
   visible: boolean
@@ -11,25 +22,26 @@ interface AddFolderModalProps {
   onCreateFolder: (name: string, color: string, icon: string) => void
 }
 
-const AddFolderModal: React.FC<AddFolderModalProps> = ({ visible, onClose, onCreateFolder }) => {
+const AddFolderModal: React.FC<AddFolderModalProps> = ({ visible, onClose, onCreateFolder }:any) => {
   const [folderName, setFolderName] = useState("")
-  const [selectedColor, setSelectedColor] = useState("from-blue-400 to-purple-500")
+  const [selectedColor, setSelectedColor] = useState<[ColorValue, ColorValue]>(["#60a5fa", "#a78bfa"]) // blue to purple
   const [selectedIcon, setSelectedIcon] = useState("document-text")
 
-  const colors = [
-    "bg-blue-400",
-    "bg-green-400",
-    "bg-pink-400",
-    "bg-yellow-400",
-    "bg-purple-400",
-    "bg-indigo-400",
+
+  const colors: [ColorValue, ColorValue][] = [
+    ["#60a5fa", "#a78bfa"], // blue to purple
+    ["#34d399", "#10b981"], // green
+    ["#f472b6", "#ec4899"], // pink
+    ["#facc15", "#f59e0b"], // yellow
+    ["#a78bfa", "#6366f1"], // purple
+    ["#818cf8", "#4f46e5"], // indigo
   ]
 
   const icons = ["document-text", "briefcase", "heart", "star", "bookmark", "folder", "camera", "musical-notes"]
 
   const handleCreate = () => {
     if (folderName.trim()) {
-      onCreateFolder(folderName.trim(), selectedColor, selectedIcon)
+      onCreateFolder(folderName.trim(), JSON.stringify(selectedColor), selectedIcon)
       setFolderName("")
       onClose()
     }
@@ -38,99 +50,162 @@ const AddFolderModal: React.FC<AddFolderModalProps> = ({ visible, onClose, onCre
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <TouchableWithoutFeedback onPress={onClose}>
-        <View className="flex-1 bg-black/60 justify-center items-center px-6">
-          <TouchableWithoutFeedback>
-            <View className="bg-white rounded-3xl p-6 w-full max-w-sm">
-              {/* Header */}
-              <View className="items-center mb-6">
-                <Text style={{ fontFamily: "Gilroy-SemiBold" }} className="text-xl font-semibold text-gray-800">
-                  Create New Folder
-                </Text>
-              </View>
-
-              {/* Preview */}
-              <View className="items-center mb-6">
-                <View
-                  className={`w-16 h-16 bg-gradient-to-br ${selectedColor} rounded-2xl items-center justify-center mb-3`}
-                >
-                  <Ionicons name={selectedIcon as any} size={28} color="white" />
-                </View>
-                <Text style={{ fontFamily: "Gilroy-Regular" }} className="text-gray-500 text-sm">
-                  Preview
-                </Text>
-              </View>
-
-              {/* Folder Name */}
-              <View className="mb-6">
-                <Text style={{ fontFamily: "Gilroy-SemiBold" }} className="text-base font-semibold text-gray-800 mb-2">
-                  Folder Name
-                </Text>
-                <TextInput
-                  value={folderName}
-                  onChangeText={setFolderName}
-                  placeholder="Enter folder name"
-                  style={{ fontFamily: "Gilroy-Regular" }}
-                  className="border border-gray-200 rounded-xl px-4 py-3 text-base"
-                />
-              </View>
-
-              {/* Color Selection */}
-              <View className="mb-6">
-                <Text style={{ fontFamily: "Gilroy-SemiBold" }} className="text-base font-semibold text-gray-800 mb-3">
-                  Choose Color
-                </Text>
-                <View className="flex-row flex-wrap justify-between">
-                  {colors.map((color, index) => (
-                    <TouchableOpacity
-                      key={index}
-                      onPress={() => setSelectedColor(color)}
-                      className={`w-10 h-10 ${color} rounded-lg mb-2 ${
-                        selectedColor === color ? "ring-2 ring-gray-400" : ""
-                      }`}
-                    />
-                  ))}
-                </View>
-              </View>
-
-              {/* Icon Selection */}
-              <View className="mb-6">
-                <Text style={{ fontFamily: "Gilroy-SemiBold" }} className="text-base font-semibold text-gray-800 mb-3">
-                  Choose Icon
-                </Text>
-                <View className="flex-row flex-wrap justify-between">
-                  {icons.map((icon, index) => (
-                    <TouchableOpacity
-                      key={index}
-                      onPress={() => setSelectedIcon(icon)}
-                      className={`w-10 h-10 rounded-full items-center justify-center mb-2 ${
-                        selectedIcon === icon ? "bg-gray-200" : "bg-gray-100"
-                      }`}
-                    >
-                      <Ionicons name={icon as any} size={20} color="#6b7280" />
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              </View>
-
-              {/* Buttons */}
-              <View className="flex-row space-x-3 gap-4">
-                <TouchableOpacity
-                  onPress={onClose}
-                  className="flex-1 border border-gray-300 rounded-full py-3 items-center"
-                >
-                  <Text style={{ fontFamily: "Gilroy-SemiBold" }} className="text-gray-700 text-base font-semibold">
-                    Cancel
+        <View className="flex-1 bg-black/60">
+          <KeyboardAvoidingView
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+            style={{ flex: 1, justifyContent: "center", alignItems: "center", paddingHorizontal: 16 }}
+          >
+            <TouchableWithoutFeedback>
+              <View
+                style={{
+                  backgroundColor: "white",
+                  borderRadius: 24,
+                  padding: 24,
+                  width: "100%",
+                  maxWidth: 400,
+                  ...Platform.select({
+                    ios: {
+                      shadowColor: "#000",
+                      shadowOpacity: 0.15,
+                      shadowRadius: 8,
+                      shadowOffset: { width: 0, height: 4 },
+                    },
+                    android: {
+                      elevation: 6,
+                    },
+                  }),
+                }}
+              >
+                {/* Header */}
+                <View style={{ alignItems: "center", marginBottom: 24 }}>
+                  <Text style={{ fontFamily: "Gilroy-SemiBold", fontSize: 20, color: "#1f2937" }}>
+                    Create New Folder
                   </Text>
-                </TouchableOpacity>
+                </View>
 
-                <TouchableOpacity onPress={handleCreate} className="flex-1 bg-black rounded-full py-3 items-center">
-                  <Text style={{ fontFamily: "Gilroy-SemiBold" }} className="text-white text-base font-semibold">
-                    Create
+                {/* Preview */}
+                <View style={{ alignItems: "center", marginBottom: 24 }}>
+                  <LinearGradient
+                    colors={selectedColor}
+                    style={{
+                      width: 64,
+                      height: 64,
+                      borderRadius: 16,
+                      alignItems: "center",
+                      justifyContent: "center",
+                      marginBottom: 8,
+                    }}
+                  >
+                    <Ionicons name={selectedIcon as any} size={28} color="white" />
+                  </LinearGradient>
+                  <Text style={{ fontFamily: "Gilroy-Regular", color: "#6b7280", fontSize: 14 }}>Preview</Text>
+                </View>
+
+                {/* Folder Name */}
+                <View style={{ marginBottom: 24 }}>
+                  <Text style={{ fontFamily: "Gilroy-SemiBold", fontSize: 16, color: "#1f2937", marginBottom: 8 }}>
+                    Folder Name
                   </Text>
-                </TouchableOpacity>
+                  <TextInput
+                    value={folderName}
+                    onChangeText={setFolderName}
+                    placeholder="Enter folder name"
+                    style={{
+                      fontFamily: "Gilroy-Regular",
+                      borderColor: "#e5e7eb",
+                      borderWidth: 1,
+                      borderRadius: 12,
+                      paddingHorizontal: 16,
+                      paddingVertical: 12,
+                      fontSize: 16,
+                    }}
+                  />
+                </View>
+
+                {/* Color Selection */}
+                <View style={{ marginBottom: 24 }}>
+                  <Text style={{ fontFamily: "Gilroy-SemiBold", fontSize: 16, color: "#1f2937", marginBottom: 12 }}>
+                    Choose Color
+                  </Text>
+                  <View style={{ flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between" }}>
+                    {colors.map((colorSet, index) => (
+                      <TouchableOpacity
+                        key={index}
+                        onPress={() => setSelectedColor(colorSet)}
+                        style={{
+                          width: 40,
+                          height: 40,
+                          borderRadius: 8,
+                          marginBottom: 8,
+                          borderWidth: selectedColor === colorSet ? 2 : 0,
+                          borderColor: "#9ca3af",
+                          overflow: "hidden",
+                        }}
+                      >
+                        <LinearGradient colors={colorSet} style={{ flex: 1 }} />
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </View>
+
+                {/* Icon Selection */}
+                <View style={{ marginBottom: 24 }}>
+                  <Text style={{ fontFamily: "Gilroy-SemiBold", fontSize: 16, color: "#1f2937", marginBottom: 12 }}>
+                    Choose Icon
+                  </Text>
+                  <View style={{ flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between" }}>
+                    {icons.map((icon, index) => (
+                      <TouchableOpacity
+                        key={index}
+                        onPress={() => setSelectedIcon(icon)}
+                        style={{
+                          width: 40,
+                          height: 40,
+                          borderRadius: 20,
+                          alignItems: "center",
+                          justifyContent: "center",
+                          marginBottom: 8,
+                          backgroundColor: selectedIcon === icon ? "#e5e7eb" : "#f3f4f6",
+                        }}
+                      >
+                        <Ionicons name={icon as any} size={20} color="#6b7280" />
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </View>
+
+                {/* Buttons */}
+                <View style={{ flexDirection: "row", gap: 12 }}>
+                  <TouchableOpacity
+                    onPress={onClose}
+                    style={{
+                      flex: 1,
+                      borderWidth: 1,
+                      borderColor: "#d1d5db",
+                      borderRadius: 999,
+                      paddingVertical: 12,
+                      alignItems: "center",
+                    }}
+                  >
+                    <Text style={{ fontFamily: "Gilroy-SemiBold", fontSize: 16, color: "#374151" }}>Cancel</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    onPress={handleCreate}
+                    style={{
+                      flex: 1,
+                      backgroundColor: "black",
+                      borderRadius: 999,
+                      paddingVertical: 12,
+                      alignItems: "center",
+                    }}
+                  >
+                    <Text style={{ fontFamily: "Gilroy-SemiBold", fontSize: 16, color: "white" }}>Create</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
-            </View>
-          </TouchableWithoutFeedback>
+            </TouchableWithoutFeedback>
+          </KeyboardAvoidingView>
         </View>
       </TouchableWithoutFeedback>
     </Modal>

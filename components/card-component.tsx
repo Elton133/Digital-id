@@ -5,6 +5,7 @@ import { useState } from "react"
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native"
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from "react-native-reanimated"
 import { Gesture, GestureDetector } from "react-native-gesture-handler"
+import { Platform } from "react-native"
 
 export default function GhanaCard3D({frontImage, backImage, title, description}: any) {
   const [showFront, setShowFront] = useState(true)
@@ -42,10 +43,11 @@ export default function GhanaCard3D({frontImage, backImage, title, description}:
   }))
 
   // Shadow animation that responds to rotation
-  const shadowStyle = useAnimatedStyle(() => {
-    const shadowOffsetX = rotateY.value * 0.5
-    const shadowOffsetY = Math.abs(rotateX.value) * 0.3 + 8
-    const shadowOpacity = 0.15 + Math.abs(rotateX.value + rotateY.value) * 0.01
+const shadowStyle = useAnimatedStyle(() => {
+  if (Platform.OS === "ios") {
+    const shadowOffsetX = rotateY.value * 0.5;
+    const shadowOffsetY = Math.abs(rotateX.value) * 0.3 + 8;
+    const shadowOpacity = 0.15 + Math.abs(rotateX.value + rotateY.value) * 0.01;
 
     return {
       shadowOffset: {
@@ -54,8 +56,14 @@ export default function GhanaCard3D({frontImage, backImage, title, description}:
       },
       shadowOpacity: Math.min(shadowOpacity, 0.3),
       shadowRadius: 12 + Math.abs(rotateX.value + rotateY.value) * 0.2,
-    }
-  })
+    };
+  } else {
+    // Android fallback
+    return {
+      elevation: 8 + Math.abs(rotateX.value + rotateY.value) * 0.2,
+    };
+  }
+});
 
   return (
     <View style={styles.container}>

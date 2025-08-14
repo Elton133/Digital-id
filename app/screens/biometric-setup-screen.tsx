@@ -1,5 +1,6 @@
 "use client"
 
+import BiometricOptions from "@/components/biometric-options"
 import { Ionicons } from "@expo/vector-icons"
 import { router } from "expo-router"
 import type React from "react"
@@ -9,29 +10,7 @@ import { Alert, SafeAreaView, StatusBar, Text, TouchableOpacity, View } from "re
 const BiometricSetupScreen: React.FC = () => {
   const [selectedMethod, setSelectedMethod] = useState<"faceId" | "fingerprint" | "pin" | null>(null)
 
-  const biometricOptions = [
-    {
-      id: "faceId",
-      title: "Face ID",
-      description: "Use your face to unlock Digital ID",
-      icon: "scan-outline",
-      available: true,
-    },
-    {
-      id: "fingerprint",
-      title: "Fingerprint",
-      description: "Use your fingerprint to unlock Digital ID",
-      icon: "finger-print-outline",
-      available: true,
-    },
-    {
-      id: "pin",
-      title: "PIN Code",
-      description: "Create a 6-digit PIN to unlock Digital ID",
-      icon: "keypad-outline",
-      available: true,
-    },
-  ]
+
 
   const handleSetupBiometric = async () => {
     if (!selectedMethod) {
@@ -102,52 +81,7 @@ const BiometricSetupScreen: React.FC = () => {
         </View>
 
         {/* Biometric Options */}
-        <View className="space-y-4 mb-12 gap-3">
-          {biometricOptions.map((option) => (
-            <TouchableOpacity
-              key={option.id}
-              onPress={() => setSelectedMethod(option.id as any)}
-              className={`border-2 rounded-2xl p-4 ${
-                selectedMethod === option.id ? "border-[#003554] bg-white" : "border-gray-200 bg-white"
-              }`}
-            >
-              <View className="flex-row items-center">
-                <View
-                  className={`w-12 h-12 rounded-full items-center justify-center mr-4 ${
-                    selectedMethod === option.id ? "bg-[#003554]" : "bg-gray-100"
-                  }`}
-                >
-                  <Ionicons
-                    name={option.icon as any}
-                    size={24}
-                    color={selectedMethod === option.id ? "white" : "#6b7280"}
-                  />
-                </View>
-                <View className="flex-1">
-                  <Text
-                    style={{ fontFamily: "Gilroy-SemiBold" }}
-                    className={`text-base font-semibold mb-1 ${
-                      selectedMethod === option.id ? "text-[#003554]" : "text-gray-800"
-                    }`}
-                  >
-                    {option.title}
-                  </Text>
-                  <Text
-                    style={{ fontFamily: "Gilroy-Regular" }}
-                    className={`text-sm ${selectedMethod === option.id ? "text-[#003554]" : "text-gray-500"}`}
-                  >
-                    {option.description}
-                  </Text>
-                </View>
-                {selectedMethod === option.id && (
-                  <View className="w-6 h-6 bg-[#003554] rounded-full items-center justify-center">
-                    <Ionicons name="checkmark" size={16} color="white" />
-                  </View>
-                )}
-              </View>
-            </TouchableOpacity>
-          ))}
-        </View>
+        <BiometricOptions selectedMethod={selectedMethod} onBiometricOptionSelect={setSelectedMethod} />
 
         {/* Setup Button */}
         <TouchableOpacity

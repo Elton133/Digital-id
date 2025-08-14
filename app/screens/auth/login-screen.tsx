@@ -19,6 +19,11 @@ import {
     ActivityIndicator
 } from "react-native"
 import LottieView from "lottie-react-native"
+import { loginSchema } from "@/schemas"
+import type { LoginSchema } from "@/schemas"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { images } from "@/constants/images"
 
 const LoginScreen: React.FC = () => {
   const [email, setEmail] = useState("")
@@ -26,11 +31,19 @@ const LoginScreen: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
 
+    const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginSchema>({
+    resolver: zodResolver(loginSchema),
+  });
+
   const handleLogin = async () => {
-    if (!email || !password) {
-      Alert.alert("Error", "Please fill in all fields")
-      return
-    }
+    // if (!email || !password) {
+    //   Alert.alert("Error", "Please fill in all fields")
+    //   return
+    // }
 
     setIsLoading(true)
     try {
@@ -55,15 +68,6 @@ const LoginScreen: React.FC = () => {
 
       <KeyboardAvoidingView className="flex-1" behavior={Platform.OS === "ios" ? "padding" : "height"}>
         {/* Header */}
-        {/* <View className="flex-row items-center px-6 py-4">
-          <TouchableOpacity onPress={() => router.back()} className="mr-4">
-            <Ionicons name="arrow-back" size={24} color="#000" />
-          </TouchableOpacity>
-          <Text style={{ fontFamily: "Gilroy-SemiBold" }} className="text-lg font-semibold text-gray-800">
-            Welcome Back
-          </Text>
-        </View> */}
-
         <ScrollView className="flex-1 px-6">
           {/* App Icon */}
           <View className="items-center mt-14 mb-12">
@@ -91,13 +95,20 @@ const LoginScreen: React.FC = () => {
                 Email Address
               </Text>
               <TextInput
-                value={email}
-                onChangeText={setEmail}
+                {...register("email")}
                 placeholder="Enter your email"
-                style={{ fontFamily: "Gilroy-Regular" }}
-                className="border border-gray-200 rounded-full px-4 py-4 text-base bg-gray-50"
+                style={{
+                  height: 45,
+                  fontSize: 16,
+                  lineHeight: 20, 
+                  textAlignVertical: 'center', 
+                  fontFamily: "Gilroy-Regular",
+                  justifyContent: 'center'
+                }}
+                className="border border-gray-200 rounded-full text-base px-4 bg-gray-50"
                 keyboardType="email-address"
                 autoCapitalize="none"
+                textAlignVertical="center"
               />
             </View>
 
@@ -108,11 +119,10 @@ const LoginScreen: React.FC = () => {
               </Text>
               <View className="relative">
                 <TextInput
-                  value={password}
-                  onChangeText={setPassword}
+                  {...register("password")}
                   placeholder="Enter your password"
-                  style={{ fontFamily: "Gilroy-Regular" }}
-                  className="border border-gray-200 rounded-full px-4 py-4 pr-12 text-base bg-gray-50"
+                  style={{ fontFamily: "Gilroy-Regular", height: 45, fontSize: 16, lineHeight: 20, textAlignVertical: 'center', justifyContent: 'center' }}
+                  className="border border-gray-200 rounded-full px-4 pr-12 text-base bg-gray-50"
                   secureTextEntry={!showPassword}
                 />
                 <TouchableOpacity
@@ -148,7 +158,7 @@ const LoginScreen: React.FC = () => {
           {/* Divider */}
           <View className="flex-row items-center mb-6">
             <View className="flex-1 h-px bg-gray-200" />
-            <Text style={{ fontFamily: "Gilroy-Regular" }} className="text-gray-400 text-sm mx-4">
+            <Text style={{ fontFamily: "Gilroy-Regular" }} className="text-[#003554] text-sm mx-4">
               or continue with
             </Text>
             <View className="flex-1 h-px bg-gray-200" />
@@ -156,10 +166,15 @@ const LoginScreen: React.FC = () => {
 
           {/* Social Login */}
           <View className="flex-row space-x-4 mb-8 gap-4">
-            <TouchableOpacity className="flex-1 flex-row items-center justify-center border border-gray-200 rounded-full py-3">
-              <Ionicons name="logo-google" size={20} color="#db4437" />
+            <TouchableOpacity className="flex-1 flex-row items-center justify-center border border-gray-50 rounded-full py-3 shadow-sm">
+              <Image
+                source={images.google}
+                className="w-[25px] h-[25px]"
+                resizeMode="contain"
+              />
+
             </TouchableOpacity>
-            <TouchableOpacity className="flex-1 flex-row items-center justify-center border border-gray-200 rounded-full py-3">
+            <TouchableOpacity className="flex-1 flex-row items-center justify-center border border-gray-50 rounded-full py-3 shadow-sm">
               <Ionicons name="logo-apple" size={20} color="#000" />
             </TouchableOpacity>
           </View>

@@ -16,8 +16,22 @@ import {
     TouchableOpacity,
     View,
 } from "react-native"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { SignupSchema } from "@/schemas"
+import { signupSchema } from "@/schemas"
+import LottieView from "lottie-react-native"
+
 
 const SignUpScreen: React.FC = () => {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<SignupSchema>({
+    resolver: zodResolver(signupSchema),
+  });
+
   const [fullName, setFullName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -61,9 +75,13 @@ const SignUpScreen: React.FC = () => {
 
       <KeyboardAvoidingView className="flex-1" behavior={Platform.OS === "ios" ? "padding" : "height"}>
         {/* Header */}
-        <View className="flex-row items-center px-6 py-4">
-          <TouchableOpacity onPress={() => router.back()} className="mr-4">
-            <Ionicons name="arrow-back" size={24} color="#000" />
+        <View className="flex-row items-center px-6 py-4 bg-white/80 backdrop-blur-sm">
+          <TouchableOpacity
+            onPress={() => router.back()}
+            className="mr-4 p-2 rounded-full bg-gray-100"
+            accessibilityLabel="Go back"
+          >
+            <Ionicons name="arrow-back" size={20} color="#374151" />
           </TouchableOpacity>
           <Text style={{ fontFamily: "Gilroy-SemiBold" }} className="text-lg font-semibold text-gray-800">
             Create Account
@@ -73,8 +91,16 @@ const SignUpScreen: React.FC = () => {
         <ScrollView className="flex-1 px-6">
           {/* Title */}
           <View className="mb-8">
+            <View className="items-center justify-center mb-3 overflow-hidden">
+              <LottieView
+                source={require("../../../assets/animations/Fingerprint.json")}
+                autoPlay
+                loop
+                style={{ width: 100, height: 100 }}
+              />
+            </View>
             <Text style={{ fontFamily: "Gilroy-SemiBold" }} className="text-2xl font-bold text-gray-800 mb-2">
-              Join Digital ID
+              Join Digital ID  
             </Text>
             <Text style={{ fontFamily: "Gilroy-Regular" }} className="text-gray-500 text-base">
               Create your account to start storing smarter!
@@ -89,11 +115,10 @@ const SignUpScreen: React.FC = () => {
                 Full Name
               </Text>
               <TextInput
-                value={fullName}
-                onChangeText={setFullName}
+                {...register("fullName")}
                 placeholder="Enter your full name"
-                style={{ fontFamily: "Gilroy-Regular" }}
-                className="border border-gray-200 rounded-full px-4 py-4 text-base bg-gray-50"
+                style={{ fontFamily: "Gilroy-Regular", height: 45, fontSize: 16, lineHeight: 20, textAlignVertical: 'center', justifyContent: 'center' }}
+                className="border border-gray-200 rounded-full px-4 text-base bg-gray-50"
                 autoCapitalize="words"
               />
             </View>
@@ -104,11 +129,10 @@ const SignUpScreen: React.FC = () => {
                 Email Address
               </Text>
               <TextInput
-                value={email}
-                onChangeText={setEmail}
+                {...register("email")}
                 placeholder="Enter your email"
-                style={{ fontFamily: "Gilroy-Regular" }}
-                className="border border-gray-200 rounded-full px-4 py-4 text-base bg-gray-50"
+                style={{ fontFamily: "Gilroy-Regular", height: 45, fontSize: 16, lineHeight: 20, textAlignVertical: 'center', justifyContent: 'center' }}
+                className="border border-gray-200 rounded-full px-4 text-base bg-gray-50"
                 keyboardType="email-address"
                 autoCapitalize="none"
               />
@@ -121,11 +145,10 @@ const SignUpScreen: React.FC = () => {
               </Text>
               <View className="relative">
                 <TextInput
-                  value={password}
-                  onChangeText={setPassword}
+                  {...register("password")}
                   placeholder="Create a password"
-                  style={{ fontFamily: "Gilroy-Regular" }}
-                  className="border border-gray-200 rounded-full px-4 py-4 pr-12 text-base bg-gray-50"
+                  style={{ fontFamily: "Gilroy-Regular", height: 45, fontSize: 16, lineHeight: 20, textAlignVertical: 'center', justifyContent: 'center' }}
+                  className="border border-gray-200 rounded-full px-4 text-base bg-gray-50"
                   secureTextEntry={!showPassword}
                 />
                 <TouchableOpacity
@@ -144,11 +167,10 @@ const SignUpScreen: React.FC = () => {
               </Text>
               <View className="relative">
                 <TextInput
-                  value={confirmPassword}
-                  onChangeText={setConfirmPassword}
+                  {...register("confirmPassword")}
                   placeholder="Confirm your password"
-                  style={{ fontFamily: "Gilroy-Regular" }}
-                  className="border border-gray-200 rounded-full px-4 py-4 pr-12 text-base bg-gray-50"
+                  style={{ fontFamily: "Gilroy-Regular", height: 45, fontSize: 16, lineHeight: 20, textAlignVertical: 'center', justifyContent: 'center' }}
+                  className="border border-gray-200 rounded-full px-4 text-base bg-gray-50"
                   secureTextEntry={!showConfirmPassword}
                 />
                 <TouchableOpacity
