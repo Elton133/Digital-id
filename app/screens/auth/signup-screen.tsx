@@ -21,6 +21,8 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { SignupSchema } from "@/schemas"
 import { signupSchema } from "@/schemas"
 import LottieView from "lottie-react-native"
+import { Image } from "react-native"
+import { images } from "@/constants/images"
 
 
 const SignUpScreen: React.FC = () => {
@@ -207,13 +209,18 @@ const SignUpScreen: React.FC = () => {
 
           {/* Social Sign Up */}
           <View className="flex-row space-x-4 mb-8 gap-4">
-            <TouchableOpacity className="flex-1 flex-row items-center justify-center border border-gray-200 rounded-full py-3">
-              <Ionicons name="logo-google" size={20} color="#db4437" />
-            </TouchableOpacity>
-            <TouchableOpacity className="flex-1 flex-row items-center justify-center border border-gray-200 rounded-full py-3">
-              <Ionicons name="logo-apple" size={20} color="#000" />
-            </TouchableOpacity>
-          </View>
+                      <TouchableOpacity className="flex-1 flex-row items-center justify-center border border-gray-50 rounded-full py-3 shadow-sm">
+                        <Image
+                          source={images.google}
+                          className="w-[25px] h-[25px]"
+                          resizeMode="contain"
+                        />
+          
+                      </TouchableOpacity>
+                      <TouchableOpacity className="flex-1 flex-row items-center justify-center border border-gray-50 rounded-full py-3 shadow-sm">
+                        <Ionicons name="logo-apple" size={20} color="#000" />
+                      </TouchableOpacity>
+                    </View>
 
           {/* Login Link */}
           <View className="items-center mb-8">

@@ -10,8 +10,6 @@ import { Alert, SafeAreaView, StatusBar, Text, TouchableOpacity, View } from "re
 const BiometricSetupScreen: React.FC = () => {
   const [selectedMethod, setSelectedMethod] = useState<"faceId" | "fingerprint" | "pin" | null>(null)
 
-
-
   const handleSetupBiometric = async () => {
     if (!selectedMethod) {
       Alert.alert("Please select an authentication method")
