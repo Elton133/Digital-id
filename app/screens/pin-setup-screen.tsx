@@ -4,7 +4,8 @@ import { Ionicons } from "@expo/vector-icons"
 import { router } from "expo-router"
 import type React from "react"
 import { useState } from "react"
-import { Alert, SafeAreaView, StatusBar, Text, TouchableOpacity, View } from "react-native"
+import { Alert, StatusBar, Text, TouchableOpacity, View } from "react-native"
+import { SafeAreaView } from "react-native-safe-area-context"
 
 const PinSetupScreen: React.FC = () => {
   const [pin, setPin] = useState("")
@@ -39,7 +40,7 @@ const PinSetupScreen: React.FC = () => {
         Alert.alert("PIN Created", "Your PIN has been set up successfully!", [
           {
             text: "Continue",
-            onPress: () => router.push("/screens/main-screen-with-modal"),
+            onPress: () => router.push("/screens/main"),
           },
         ])
       } else {

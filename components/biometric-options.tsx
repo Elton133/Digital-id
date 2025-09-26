@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons'
-import React, { useState } from 'react'
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import React from 'react'
+import { Text, TouchableOpacity, View } from 'react-native'
 
 const BiometricOptions = ({selectedMethod, onBiometricOptionSelect}:any) => {
 
@@ -80,4 +80,4 @@ const BiometricOptions = ({selectedMethod, onBiometricOptionSelect}:any) => {
 
 export default BiometricOptions
 
-const styles = StyleSheet.create({})
+// const styles = StyleSheet.create({})

@@ -1,71 +1,55 @@
 "use client"
 
-import { Ionicons } from "@expo/vector-icons"
-import { router } from "expo-router"
-import type React from "react"
-import { useState } from "react"
-import {
-    Alert,
-    KeyboardAvoidingView,
-    Platform,
-    SafeAreaView,
-    ScrollView,
-    StatusBar,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
-} from "react-native"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { SignupSchema } from "@/schemas"
-import { signupSchema } from "@/schemas"
-import LottieView from "lottie-react-native"
-import { Image } from "react-native"
 import { images } from "@/constants/images"
-
+import { SignupSchema, signupSchema } from "@/schemas"
+import { register as registerUser } from "@/services/AuthServices"
+import { Ionicons } from "@expo/vector-icons"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { router } from "expo-router"
+import LottieView from "lottie-react-native"
+import React, { useState } from "react"
+import { useForm, Controller } from "react-hook-form"
+import AsyncStorage from "@react-native-async-storage/async-storage"
+import {
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  SafeAreaView,
+  ScrollView,
+  StatusBar,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+  Alert,
+} from "react-native"
 
 const SignUpScreen: React.FC = () => {
   const {
-    register,
+    control,
     handleSubmit,
     formState: { errors },
   } = useForm<SignupSchema>({
     resolver: zodResolver(signupSchema),
-  });
+  })
 
-  const [fullName, setFullName] = useState("")
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [confirmPassword, setConfirmPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
 
-  const handleSignUp = async () => {
-    if (!fullName || !email || !password || !confirmPassword) {
-      Alert.alert("Error", "Please fill in all fields")
-      return
-    }
-
-    if (password !== confirmPassword) {
-      Alert.alert("Error", "Passwords do not match")
-      return
-    }
-
-    if (password.length < 6) {
-      Alert.alert("Error", "Password must be at least 6 characters")
-      return
-    }
-
+  const handleSignUp = async (data: SignupSchema) => {
     setIsLoading(true)
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000))
-      console.log("Sign up:", { fullName, email, password })
-      router.push("/screens/biometric-setup-screen")
-    } catch (error) {
-      Alert.alert("Error", "Failed to create account. Please try again.")
+      const response = await registerUser(data.fullName, data.email, data.password)
+      console.log("Registered:", response.data)
+
+      // await AsyncStorage.setItem("token", response.data.token)
+
+      Alert.alert("Success", "Account created successfully!")
+      router.push("/screens/auth/login-screen")
+    } catch (err: any) {
+      console.error(err)
+      Alert.alert("Error", err.response?.data?.message || "Registration failed")
     } finally {
       setIsLoading(false)
     }
@@ -75,7 +59,10 @@ const SignUpScreen: React.FC = () => {
     <SafeAreaView className="flex-1 bg-white">
       <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
 
-      <KeyboardAvoidingView className="flex-1" behavior={Platform.OS === "ios" ? "padding" : "height"}>
+      <KeyboardAvoidingView
+        className="flex-1"
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
         {/* Header */}
         <View className="flex-row items-center px-6 py-4 bg-white/80 backdrop-blur-sm">
           <TouchableOpacity
@@ -112,82 +99,122 @@ const SignUpScreen: React.FC = () => {
           {/* Form */}
           <View className="space-y-4 mb-8 gap-4">
             {/* Full Name */}
-            <View>
-              <Text style={{ fontFamily: "Gilroy-SemiBold" }} className="text-gray-700 text-md font-semibold mb-2">
-                Full Name
-              </Text>
-              <TextInput
-                {...register("fullName")}
-                placeholder="Enter your full name"
-                style={{ fontFamily: "Gilroy-Regular", height: 45, fontSize: 16, lineHeight: 20, textAlignVertical: 'center', justifyContent: 'center' }}
-                className="border border-gray-200 rounded-full px-4 text-base bg-gray-50"
-                autoCapitalize="words"
-              />
-            </View>
+            <Controller
+              control={control}
+              name="fullName"
+              render={({ field: { onChange, value } }) => (
+                <View>
+                  <Text style={{ fontFamily: "Gilroy-SemiBold" }} className="text-gray-700 text-md font-semibold mb-2">
+                    Full Name
+                  </Text>
+                  <TextInput
+                    value={value}
+                    onChangeText={onChange}
+                    placeholder="Enter your full name"
+                    style={{ fontFamily: "Gilroy-Regular", height: 45, fontSize: 16, lineHeight: 20, textAlignVertical: 'center', justifyContent: 'center' }}
+                    className="border border-gray-200 rounded-full px-4 text-base bg-gray-50"
+                    autoCapitalize="words"
+                  />
+                  {errors.fullName && (
+                    <Text className="text-red-500 text-sm">{errors.fullName.message}</Text>
+                  )}
+                </View>
+              )}
+            />
 
             {/* Email */}
-            <View>
-              <Text style={{ fontFamily: "Gilroy-SemiBold" }} className="text-gray-700 text-md font-semibold mb-2">
-                Email Address
-              </Text>
-              <TextInput
-                {...register("email")}
-                placeholder="Enter your email"
-                style={{ fontFamily: "Gilroy-Regular", height: 45, fontSize: 16, lineHeight: 20, textAlignVertical: 'center', justifyContent: 'center' }}
-                className="border border-gray-200 rounded-full px-4 text-base bg-gray-50"
-                keyboardType="email-address"
-                autoCapitalize="none"
-              />
-            </View>
+            <Controller
+              control={control}
+              name="email"
+              render={({ field: { onChange, value } }) => (
+                <View>
+                  <Text style={{ fontFamily: "Gilroy-SemiBold" }} className="text-gray-700 text-md font-semibold mb-2">
+                    Email Address
+                  </Text>
+                  <TextInput
+                    value={value}
+                    onChangeText={onChange}
+                    placeholder="Enter your email"
+                    style={{ fontFamily: "Gilroy-Regular", height: 45, fontSize: 16, lineHeight: 20, textAlignVertical: 'center', justifyContent: 'center' }}
+                    className="border border-gray-200 rounded-full px-4 text-base bg-gray-50"
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                  />
+                  {errors.email && (
+                    <Text className="text-red-500 text-sm">{errors.email.message}</Text>
+                  )}
+                </View>
+              )}
+            />
 
             {/* Password */}
-            <View>
-              <Text style={{ fontFamily: "Gilroy-SemiBold" }} className="text-gray-700 text-md font-semibold mb-2">
-                Password
-              </Text>
-              <View className="relative">
-                <TextInput
-                  {...register("password")}
-                  placeholder="Create a password"
-                  style={{ fontFamily: "Gilroy-Regular", height: 45, fontSize: 16, lineHeight: 20, textAlignVertical: 'center', justifyContent: 'center' }}
-                  className="border border-gray-200 rounded-full px-4 text-base bg-gray-50"
-                  secureTextEntry={!showPassword}
-                />
-                <TouchableOpacity
-                  onPress={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-4"
-                >
-                  <Ionicons name={showPassword ? "eye-off" : "eye"} size={20} color="#6b7280" />
-                </TouchableOpacity>
-              </View>
-            </View>
+            <Controller
+              control={control}
+              name="password"
+              render={({ field: { onChange, value } }) => (
+                <View>
+                  <Text style={{ fontFamily: "Gilroy-SemiBold" }} className="text-gray-700 text-md font-semibold mb-2">
+                    Password
+                  </Text>
+                  <View className="relative">
+                    <TextInput
+                      value={value}
+                      onChangeText={onChange}
+                      placeholder="Create a password"
+                      style={{ fontFamily: "Gilroy-Regular", height: 45, fontSize: 16, lineHeight: 20, textAlignVertical: 'center', justifyContent: 'center' }}
+                      className="border border-gray-200 rounded-full px-4 text-base bg-gray-50"
+                      secureTextEntry={!showPassword}
+                    />
+                    <TouchableOpacity
+                      onPress={() => setShowPassword(!showPassword)}
+                      className="absolute right-4 top-4"
+                    >
+                      <Ionicons name={showPassword ? "eye-off" : "eye"} size={20} color="#6b7280" />
+                    </TouchableOpacity>
+                  </View>
+                  {errors.password && (
+                    <Text className="text-red-500 text-sm">{errors.password.message}</Text>
+                  )}
+                </View>
+              )}
+            />
 
             {/* Confirm Password */}
-            <View>
-              <Text style={{ fontFamily: "Gilroy-SemiBold" }} className="text-gray-700 text-md font-semibold mb-2">
-                Confirm Password
-              </Text>
-              <View className="relative">
-                <TextInput
-                  {...register("confirmPassword")}
-                  placeholder="Confirm your password"
-                  style={{ fontFamily: "Gilroy-Regular", height: 45, fontSize: 16, lineHeight: 20, textAlignVertical: 'center', justifyContent: 'center' }}
-                  className="border border-gray-200 rounded-full px-4 text-base bg-gray-50"
-                  secureTextEntry={!showConfirmPassword}
-                />
-                <TouchableOpacity
-                  onPress={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-4 top-4"
-                >
-                  <Ionicons name={showConfirmPassword ? "eye-off" : "eye"} size={20} color="#6b7280" />
-                </TouchableOpacity>
-              </View>
-            </View>
+            <Controller
+              control={control}
+              name="confirmPassword"
+              render={({ field: { onChange, value } }) => (
+                <View>
+                  <Text style={{ fontFamily: "Gilroy-SemiBold" }} className="text-gray-700 text-md font-semibold mb-2">
+                    Confirm Password
+                  </Text>
+                  <View className="relative">
+                    <TextInput
+                      value={value}
+                      onChangeText={onChange}
+                      placeholder="Confirm your password"
+                      style={{ fontFamily: "Gilroy-Regular", height: 45, fontSize: 16, lineHeight: 20, textAlignVertical: 'center', justifyContent: 'center' }}
+                      className="border border-gray-200 rounded-full px-4 text-base bg-gray-50"
+                      secureTextEntry={!showConfirmPassword}
+                    />
+                    <TouchableOpacity
+                      onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute right-4 top-4"
+                    >
+                      <Ionicons name={showConfirmPassword ? "eye-off" : "eye"} size={20} color="#6b7280" />
+                    </TouchableOpacity>
+                  </View>
+                  {errors.confirmPassword && (
+                    <Text className="text-red-500 text-sm">{errors.confirmPassword.message}</Text>
+                  )}
+                </View>
+              )}
+            />
           </View>
 
           {/* Sign Up Button */}
           <TouchableOpacity
-            onPress={handleSignUp}
+            onPress={handleSubmit(handleSignUp)}
             disabled={isLoading}
             className={`rounded-full py-4 items-center mb-6 ${
               isLoading ? "bg-gray-300" : "bg-[#003554]"
@@ -209,18 +236,17 @@ const SignUpScreen: React.FC = () => {
 
           {/* Social Sign Up */}
           <View className="flex-row space-x-4 mb-8 gap-4">
-                      <TouchableOpacity className="flex-1 flex-row items-center justify-center border border-gray-50 rounded-full py-3 shadow-sm">
-                        <Image
-                          source={images.google}
-                          className="w-[25px] h-[25px]"
-                          resizeMode="contain"
-                        />
-          
-                      </TouchableOpacity>
-                      <TouchableOpacity className="flex-1 flex-row items-center justify-center border border-gray-50 rounded-full py-3 shadow-sm">
-                        <Ionicons name="logo-apple" size={20} color="#000" />
-                      </TouchableOpacity>
-                    </View>
+            <TouchableOpacity className="flex-1 flex-row items-center justify-center border border-gray-50 rounded-full py-3 shadow-sm">
+              <Image
+                source={images.google}
+                className="w-[25px] h-[25px]"
+                resizeMode="contain"
+              />
+            </TouchableOpacity>
+            <TouchableOpacity className="flex-1 flex-row items-center justify-center border border-gray-50 rounded-full py-3 shadow-sm">
+              <Ionicons name="logo-apple" size={20} color="#000" />
+            </TouchableOpacity>
+          </View>
 
           {/* Login Link */}
           <View className="items-center mb-8">

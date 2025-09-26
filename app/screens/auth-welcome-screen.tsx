@@ -3,7 +3,8 @@
 import { Ionicons } from "@expo/vector-icons"
 import { router } from "expo-router"
 import type React from "react"
-import { SafeAreaView, StatusBar, Text, TouchableOpacity, View, Image } from "react-native"
+import { StatusBar, Text, TouchableOpacity, View, Image } from "react-native"
+import { SafeAreaView } from "react-native-safe-area-context"
 import { images } from "@/constants/images"
 
 const AuthWelcomeScreen: React.FC = () => {

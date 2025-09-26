@@ -5,7 +5,8 @@ import { Ionicons } from "@expo/vector-icons"
 import { router } from "expo-router"
 import type React from "react"
 import { useState } from "react"
-import { Alert, SafeAreaView, StatusBar, Text, TouchableOpacity, View } from "react-native"
+import { Alert, StatusBar, Text, TouchableOpacity, View } from "react-native"
+import { SafeAreaView } from "react-native-safe-area-context"
 
 const BiometricSetupScreen: React.FC = () => {
   const [selectedMethod, setSelectedMethod] = useState<"faceId" | "fingerprint" | "pin" | null>(null)
@@ -30,7 +31,7 @@ const BiometricSetupScreen: React.FC = () => {
           [
             {
               text: "Continue",
-              onPress: () => router.push("/screens/main-screen-with-modal"),
+              onPress: () => router.push("/screens/main"),
             },
           ]
         )
@@ -46,7 +47,7 @@ const BiometricSetupScreen: React.FC = () => {
       "You can always set this up later in Settings. Your account will be less secure without biometric authentication.",
       [
         { text: "Cancel", style: "cancel" },
-        { text: "Skip", onPress: () => router.push("/screens/main-screen-with-modal") },
+        { text: "Skip", onPress: () => router.push("/screens/main") },
       ]
     )
   }
@@ -74,7 +75,7 @@ const BiometricSetupScreen: React.FC = () => {
             Secure Your Documents
           </Text>
           <Text style={{ fontFamily: "Gilroy-Regular" }} className="text-gray-500 text-base leading-6">
-            Choose how you'd like to protect your notes and keep them secure.
+            Choose how you&#39;d like to protect your notes and keep them secure.
           </Text>
         </View>
 

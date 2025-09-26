@@ -4,7 +4,8 @@ import { Ionicons } from "@expo/vector-icons"
 import { router } from "expo-router"
 import type React from "react"
 import { useEffect, useState } from "react"
-import { Alert, SafeAreaView, StatusBar, Text, TouchableOpacity, View } from "react-native"
+import { Alert, StatusBar, Text, TouchableOpacity, View } from "react-native"
+import { SafeAreaView } from "react-native-safe-area-context"
 
 const BiometricLoginScreen: React.FC = () => {
   const [authMethod, setAuthMethod] = useState<"faceId" | "fingerprint" | "pin">("faceId")
@@ -25,7 +26,7 @@ const BiometricLoginScreen: React.FC = () => {
       const success = Math.random() > 0.3 // 70% success rate for demo
 
       if (success) {
-        router.push("/screens/main-screen-with-modal")
+        router.push("/screens/main")
       } else {
         Alert.alert(
           "Authentication Failed",

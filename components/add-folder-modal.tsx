@@ -19,7 +19,7 @@ import { LinearGradient } from "expo-linear-gradient";
 interface AddFolderModalProps {
   visible: boolean
   onClose: () => void
-  onCreateFolder: (name: string, color: string, icon: string) => void
+    onCreateFolder: (name: string, color: [string, string], icon: string) => void
 }
 
 const AddFolderModal: React.FC<AddFolderModalProps> = ({ visible, onClose, onCreateFolder }:any) => {
@@ -39,13 +39,14 @@ const AddFolderModal: React.FC<AddFolderModalProps> = ({ visible, onClose, onCre
 
   const icons = ["document-text", "briefcase", "heart", "star", "bookmark", "folder", "camera", "musical-notes"]
 
-  const handleCreate = () => {
-    if (folderName.trim()) {
-      onCreateFolder(folderName.trim(), JSON.stringify(selectedColor), selectedIcon)
-      setFolderName("")
-      onClose()
-    }
+const handleCreate = () => {
+  if (folderName.trim()) {
+    onCreateFolder(folderName.trim(), selectedColor as [string, string], selectedIcon)
+    setFolderName("")
+    onClose()
   }
+}
+
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>

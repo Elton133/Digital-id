@@ -1,37 +1,37 @@
-
 import ActionButtons from "@/components/action-buttons"
 import AddFolderModal from "@/components/add-folder-modal"
 import GhanaCard3D from "@/components/card-component"
-import { images } from "@/constants/images"
+// import { images } from "@/constants/images"
 import { Ionicons } from "@expo/vector-icons"
 import { LinearGradient } from "expo-linear-gradient"
 import { router } from "expo-router"
 import type React from "react"
 import { useState } from "react"
-import { Platform, SafeAreaView, ScrollView, StatusBar, Text, TouchableOpacity, View } from "react-native"
+import { Platform, ScrollView, StatusBar, Text, TouchableOpacity, View } from "react-native"
+import { SafeAreaView } from "react-native-safe-area-context"
 
 interface Folder {
   id: string
   name: string
   noteCount: number
-  color: readonly [string, string]
+  color: [string, string]   // ✅ fixed typing (removed readonly)
   icon: string
 }
 
-const MainScreenWithModal: React.FC = () => {
+const Main: React.FC = () => {
   const [folders, setFolders] = useState<Folder[]>([
     {
       id: "1",
       name: "Government ID's",
       noteCount: 0,
-      color: ["#60A5FA", "#A78BFA"] as const,
+      color: ["#60A5FA", "#A78BFA"],
       icon: "document-text",
     },
     {
       id: "2",
       name: "Documents",
       noteCount: 0,
-      color: ["#60A5FA", "#A78BFA"] as const,
+      color: ["#60A5FA", "#A78BFA"],
       icon: "document-text",
     },
   ])
@@ -42,17 +42,16 @@ const MainScreenWithModal: React.FC = () => {
     setAddFolderVisible(true)
   }
 
-const handleCreateFolder = (name: string, color: [string, string], icon: string) => {
-  const newFolder: Folder = {
-    id: Date.now().toString(),
-    name,
-    noteCount: 0,
-    color,
-    icon,
+  const handleCreateFolder = (name: string, color: [string, string], icon: string) => {
+    const newFolder: Folder = {
+      id: Date.now().toString(),
+      name,
+      noteCount: 0,
+      color,
+      icon,
+    }
+    setFolders([...folders, newFolder])
   }
-  setFolders([...folders, newFolder])
-}
-
 
   const handleQuickNote = () => {
     console.log("Quick note")
@@ -63,12 +62,13 @@ const handleCreateFolder = (name: string, color: [string, string], icon: string)
   }
 
   return (
-    <SafeAreaView style={{
-    flex: 1,
-    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
-
-  }}
-   className="flex-1">
+    <SafeAreaView
+      style={{
+        flex: 1,
+        paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
+      }}
+      className="flex-1"
+    >
       <StatusBar barStyle="dark-content" backgroundColor="#f9fafb" />
 
       {/* Header */}
@@ -103,8 +103,11 @@ const handleCreateFolder = (name: string, color: [string, string], icon: string)
         {folders.map((folder) => (
           <TouchableOpacity
             key={folder.id}
-            onPress={()=> {router.push("/screens/folder-details")}}
-            className="flex-row items-center bg-white rounded-2xl p-4 mb-4 shadow-[2px_2px_2px_rgba(0,0,0,0.1)] ">
+            onPress={() => {
+              router.push("/screens/folder-details")
+            }}
+            className="flex-row items-center bg-white rounded-2xl p-4 mb-4 shadow-[2px_2px_2px_rgba(0,0,0,0.1)] "
+          >
             <LinearGradient
               colors={folder.color}
               start={{ x: 0, y: 0 }}
@@ -115,11 +118,11 @@ const handleCreateFolder = (name: string, color: [string, string], icon: string)
                 borderRadius: 16,
                 alignItems: "center",
                 justifyContent: "center",
-                marginRight: 16
+                marginRight: 16,
               }}
             >
-            <Ionicons name={folder.icon as any} size={24} color="black" />
-          </LinearGradient>
+              <Ionicons name={folder.icon as any} size={24} color="black" />
+            </LinearGradient>
 
             <View className="flex-1">
               <Text style={{ fontFamily: "Gilroy-SemiBold" }} className="text-lg font-semibold text-gray-800 mb-1">
@@ -135,15 +138,22 @@ const handleCreateFolder = (name: string, color: [string, string], icon: string)
             </TouchableOpacity>
           </TouchableOpacity>
         ))}
-        <GhanaCard3D frontImage={images.front} backImage={images.back} title="Ghana Card" description="This is a 3D representation of the Ghana Card." />
-        <GhanaCard3D frontImage={images.schoolfront} backImage={images.schoolback} title="School ID" description="This is a 3D representation of the School ID." />
+        {/* <GhanaCard3D
+          frontImage={images.front}
+          backImage={images.back}
+          title="Ghana Card"
+          description="This is a 3D representation of the Ghana Card."
+        />
+        <GhanaCard3D
+          frontImage={images.schoolfront}
+          backImage={images.schoolback}
+          title="School ID"
+          description="This is a 3D representation of the School ID."
+        /> */}
       </ScrollView>
 
       {/* Floating Action Buttons */}
-      <ActionButtons
-        onAddFolder={handleAddFolder}
-        onQuickNote={handleQuickNote}
-      />
+      <ActionButtons onAddFolder={handleAddFolder} onQuickNote={handleQuickNote} />
 
       <AddFolderModal
         visible={addFolderVisible}
@@ -154,4 +164,4 @@ const handleCreateFolder = (name: string, color: [string, string], icon: string)
   )
 }
 
-export default MainScreenWithModal
+export default Main

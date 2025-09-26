@@ -4,7 +4,8 @@ import { Ionicons } from "@expo/vector-icons"
 import { router } from "expo-router"
 import type React from "react"
 import { useState } from "react"
-import { Alert, SafeAreaView, StatusBar, Text, TouchableOpacity, View } from "react-native"
+import { Alert, StatusBar, Text, TouchableOpacity, View } from "react-native"
+import { SafeAreaView } from "react-native-safe-area-context"
 
 const PinLoginScreen: React.FC = () => {
   const [pin, setPin] = useState("")
@@ -33,7 +34,7 @@ const PinLoginScreen: React.FC = () => {
 
     // For demo purposes, let's say the correct PIN is "123456"
     if (enteredPin === "123456") {
-      router.push("/screens/main-screen-with-modal")
+      router.push("/screens/main")
     } else {
       const newAttempts = attempts + 1
       setAttempts(newAttempts)
