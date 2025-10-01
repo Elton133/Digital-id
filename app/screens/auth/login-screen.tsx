@@ -43,9 +43,6 @@ const handleLogin = async (formData: LoginSchema) => {
     setIsLoading(true)
     try {
       const data = await login(formData.email, formData.password)
-      // console.log("Logged in:", data)
-
-      // FIX: use AsyncStorage instead of localStorage in React Native
       await AsyncStorage.setItem("token", data.data.token)
 
       Alert.alert("Success", "Logged in successfully!")
@@ -82,7 +79,7 @@ const handleLogin = async (formData: LoginSchema) => {
               />
             </View>
             <Text style={{ fontFamily: "Gilroy-SemiBold" }} className="text-2xl font-bold text-gray-800 mb-2">
-              Log In to Ares
+              Log In
             </Text>
             <Text style={{ fontFamily: "Gilroy-Regular" }} className="text-gray-500 text-base text-center">
               Access your documents and continue organizing
@@ -90,8 +87,6 @@ const handleLogin = async (formData: LoginSchema) => {
           </View>
 
           {/* Form */}
-     
-
 <View className="space-y-4 gap-4 mb-6">
   {/* Email */}
   <View>

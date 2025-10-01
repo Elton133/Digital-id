@@ -31,7 +31,7 @@ const PinLoginScreen: React.FC = () => {
   const verifyPin = async (enteredPin: string) => {
     // Simulate PIN verification
     await new Promise((resolve) => setTimeout(resolve, 500))
-
+    
     // For demo purposes, let's say the correct PIN is "123456"
     if (enteredPin === "123456") {
       router.push("/screens/main")

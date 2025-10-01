@@ -14,7 +14,7 @@ interface Folder {
   id: string
   name: string
   noteCount: number
-  color: [string, string]   // ✅ fixed typing (removed readonly)
+  color: [string, string]  
   icon: string
 }
 
@@ -138,18 +138,6 @@ const Main: React.FC = () => {
             </TouchableOpacity>
           </TouchableOpacity>
         ))}
-        {/* <GhanaCard3D
-          frontImage={images.front}
-          backImage={images.back}
-          title="Ghana Card"
-          description="This is a 3D representation of the Ghana Card."
-        />
-        <GhanaCard3D
-          frontImage={images.schoolfront}
-          backImage={images.schoolback}
-          title="School ID"
-          description="This is a 3D representation of the School ID."
-        /> */}
       </ScrollView>
 
       {/* Floating Action Buttons */}

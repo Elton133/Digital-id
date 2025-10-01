@@ -37,7 +37,7 @@ const BiometricLoginScreen: React.FC = () => {
           ]
         )
       }
-    } catch (error) {
+    } catch {
       Alert.alert("Error", "Authentication failed. Please try again.")
     } finally {
       setIsAuthenticating(false)
