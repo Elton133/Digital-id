@@ -12,27 +12,8 @@ import {
   deleteStoredCardByTimestamp,
   type StoredCardImages,
 } from "@/lib/imageUtils"
+import { Card, FolderDetailsProps, FolderItem } from "@/types/folderdetails"
 
-interface FolderItem {
-  id: string
-  name: string
-  type: "document" | "image" | "certificate"
-  dateAdded: string
-  tag?: "verified" | "needs-update"
-}
-
-interface FolderDetailsProps {
-  folderName: string
-  createdDate: string
-  lastUpdated: string
-  items: FolderItem[]
-}
-
-type Card = {
-  front: string
-  back: string
-  timestamp: number
-}
 
 const FolderDetails: React.FC<FolderDetailsProps> = ({ folderName, createdDate, lastUpdated, items = [] }) => {
   const [cards, setCards] = useState<Card[]>([])
@@ -126,26 +107,15 @@ const FolderDetails: React.FC<FolderDetailsProps> = ({ folderName, createdDate, 
       </View>
 
       <ScrollView className="flex-1 px-6 py-4" style={styles.container}>
-        {/* Error */}
-        {/* {error && (
-          <View className="bg-red-100 rounded-lg p-3 mb-4">
-            <Text style={{ fontFamily: "Gilroy-Regular" }} className="text-red-800">
-              {error}
-            </Text>
-          </View>
-        )} */}
-          {/* <View className="flex-row items-end space-x-8 gap-2 mb-4">
-           <TouchableOpacity
+        <View className="bg-black rounded-2xl p-4 mb-1 shadow-sm">
+        <TouchableOpacity
             onPress={() => router.push("/screens/add-card")}
-            className="flex-row items-center bg-black rounded-full px-5 py-3 shadow-sm">
+            className="flex-row items-center bg-black rounded-full px-6 py-4 shadow-sm mt-10">
             <Ionicons name="add" size={20} color="white" />
             <Text style={{ fontFamily: "Gilroy-SemiBold" }} className="text-white text-base font-semibold ml-2">
               Add Card
             </Text>
           </TouchableOpacity>
-        </View> */}
-
-        <View className="bg-black rounded-2xl p-4 mb-1 shadow-sm">
           <Text style={{ fontFamily: "Gilroy-SemiBold" }} className="text-lg font-semibold text-white mb-2">
             Collection Stats
           </Text>
@@ -176,26 +146,6 @@ const FolderDetails: React.FC<FolderDetailsProps> = ({ folderName, createdDate, 
             </View>
           </View>
         </View>
-
-        {/* <View className="bg-white rounded-2xl p-4 mb-4 shadow-[2px_2px_2px_rgba(0,0,0,0.1)]">
-          <Text style={{ fontFamily: "Gilroy-SemiBold" }} className="text-lg font-semibold text-gray-800 mb-3">
-            Folder Information
-          </Text>
-          <View className="space-y-2">
-            <View className="flex-row items-center">
-              <Ionicons name="calendar-outline" size={16} color="#6b7280" />
-              <Text style={{ fontFamily: "Gilroy-Regular" }} className="text-gray-600 ml-2">
-                Created: {createdDate}
-              </Text>
-            </View>
-            <View className="flex-row items-center">
-              <Ionicons name="time-outline" size={16} color="#6b7280" />
-              <Text style={{ fontFamily: "Gilroy-Regular" }} className="text-gray-600 ml-2">
-                Updated: {lastUpdated}
-              </Text>
-            </View>
-          </View>
-        </View> */}
 
         {/* Display all cards */}
         {cards.length > 0 ? (
