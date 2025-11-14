@@ -58,11 +58,17 @@ const ProfileScreen: React.FC = () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
     
     switch (option) {
+      case 'personal':
+        Alert.alert('Personal Information', 'Edit personal info would go here')
+        break
       case 'security':
-        Alert.alert('Security Settings', 'Biometric and PIN settings would go here')
+        router.push('/screens/biometric-setup-screen')
         break
       case 'emergency':
-        Alert.alert('Emergency Access', 'Emergency contact management would go here')
+        router.push('/screens/emergency-access-screen')
+        break
+      case 'documents':
+        router.push('/screens/documents-screen')
         break
       case 'backup':
         Alert.alert('Backup & Sync', 'Data backup options would go here')
@@ -104,6 +110,7 @@ const ProfileScreen: React.FC = () => {
         { icon: 'person-outline', label: 'Personal Information', key: 'personal' },
         { icon: 'shield-checkmark-outline', label: 'Security & Biometrics', key: 'security' },
         { icon: 'medical-outline', label: 'Emergency Access', key: 'emergency' },
+        { icon: 'document-text-outline', label: 'Documents', key: 'documents' },
       ],
     },
     {

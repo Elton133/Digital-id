@@ -137,6 +137,7 @@ const Main: React.FC = () => {
           <TouchableOpacity 
             onPress={async () => {
               await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+              router.push('/screens/documents-screen')
             }}
             className="w-10 h-10 bg-gray-100 rounded-full items-center justify-center"
           >
@@ -145,10 +146,11 @@ const Main: React.FC = () => {
           <TouchableOpacity 
             onPress={async () => {
               await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+              router.push('/screens/emergency-access-screen')
             }}
             className="w-10 h-10 bg-gray-100 rounded-full items-center justify-center"
           >
-            <Ionicons name="options-outline" size={20} color="#003554" />
+            <Ionicons name="medical-outline" size={20} color="#003554" />
           </TouchableOpacity>
           <TouchableOpacity 
             onPress={async () => {
