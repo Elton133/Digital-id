@@ -4,44 +4,85 @@ import BiometricOptions from "@/components/biometric-options"
 import { Ionicons } from "@expo/vector-icons"
 import { router } from "expo-router"
 import type React from "react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Alert, StatusBar, Text, TouchableOpacity, View } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
+import * as Haptics from 'expo-haptics'
+import {
+  checkBiometricCapabilities,
+  saveBiometricPreference,
+  authenticateWithBiometrics,
+  setupSessionTimeout,
+} from "@/lib/biometricAuth"
 
 const BiometricSetupScreen: React.FC = () => {
   const [selectedMethod, setSelectedMethod] = useState<"faceId" | "fingerprint" | "pin" | null>(null)
+  const [availableMethods, setAvailableMethods] = useState<string[]>([])
+
+  useEffect(() => {
+    checkAvailability()
+  }, [])
+
+  const checkAvailability = async () => {
+    const capabilities = await checkBiometricCapabilities()
+    if (capabilities.isAvailable) {
+      setAvailableMethods(capabilities.supportedTypes)
+    } else {
+      setAvailableMethods(['pin'])
+    }
+  }
 
   const handleSetupBiometric = async () => {
     if (!selectedMethod) {
+      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning)
       Alert.alert("Please select an authentication method")
       return
     }
 
-    try {
-      // Simulate biometric setup
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
 
+    try {
       if (selectedMethod === "pin") {
         router.push("/screens/pin-setup-screen")
       } else {
-        // Simulate biometric authentication setup
-        Alert.alert(
-          "Setup Complete",
-          `${selectedMethod === "faceId" ? "Face ID" : "Fingerprint"} has been set up successfully!`,
-          [
-            {
-              text: "Continue",
-              onPress: () => router.push("/screens/main"),
-            },
-          ]
+        // Test biometric authentication
+        const result = await authenticateWithBiometrics(
+          `Set up ${selectedMethod === "faceId" ? "Face ID" : "Fingerprint"} authentication`
         )
+
+        if (result.success) {
+          await saveBiometricPreference(selectedMethod)
+          await setupSessionTimeout(5) // 5 minute session timeout
+          await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
+          
+          Alert.alert(
+            "Setup Complete",
+            `${selectedMethod === "faceId" ? "Face ID" : "Fingerprint"} has been set up successfully!`,
+            [
+              {
+                text: "Continue",
+                onPress: () => router.push("/screens/main"),
+              },
+            ]
+          )
+        } else {
+          await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
+          Alert.alert("Setup Failed", result.error || "Please try again or choose a different method")
+        }
       }
     } catch (error) {
+      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
       Alert.alert("Setup Failed", "Please try again or choose a different method")
     }
   }
 
-  const handleSkip = () => {
+  const handleSetupMethodSelect = async (method: "faceId" | "fingerprint" | "pin") => {
+    await Haptics.selectionAsync()
+    setSelectedMethod(method)
+  }
+
+  const handleSkip = async () => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
     Alert.alert(
       "Skip Biometric Setup?",
       "You can always set this up later in Settings. Your account will be less secure without biometric authentication.",
@@ -80,7 +121,11 @@ const BiometricSetupScreen: React.FC = () => {
         </View>
 
         {/* Biometric Options */}
-        <BiometricOptions selectedMethod={selectedMethod} onBiometricOptionSelect={setSelectedMethod} />
+        <BiometricOptions 
+          selectedMethod={selectedMethod} 
+          onBiometricOptionSelect={handleSetupMethodSelect}
+          availableMethods={availableMethods}
+        />
 
         {/* Setup Button */}
         <TouchableOpacity

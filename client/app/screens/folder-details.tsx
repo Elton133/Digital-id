@@ -5,7 +5,9 @@ import { useState, useEffect } from "react"
 import { Platform, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View, Alert } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { useRouter } from "expo-router"
+import * as Haptics from 'expo-haptics'
 import GhanaCard3D from "@/components/card-component"
+import QRCodeModal from "@/components/QRCodeModal"
 import {
   getAllStoredCardImages,
   getImageUri,
@@ -19,6 +21,8 @@ const FolderDetails: React.FC<FolderDetailsProps> = ({ folderName, createdDate, 
   const [cards, setCards] = useState<Card[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [qrModalVisible, setQrModalVisible] = useState(false)
+  const [selectedCard, setSelectedCard] = useState<any>(null)
   const router = useRouter()
 
   useEffect(() => {
@@ -48,7 +52,8 @@ const FolderDetails: React.FC<FolderDetailsProps> = ({ folderName, createdDate, 
     }
   }
 
-  const handleDeleteCard = (timestamp: number) => {
+  const handleDeleteCard = async (timestamp: number) => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
     Alert.alert("Delete Card", "Are you sure you want to delete this card?", [
       { text: "Cancel", style: "cancel" },
       {
@@ -57,14 +62,27 @@ const FolderDetails: React.FC<FolderDetailsProps> = ({ folderName, createdDate, 
         onPress: async () => {
           const success = await deleteStoredCardByTimestamp(timestamp)
           if (success) {
+            await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
             setCards(cards.filter((c) => c.timestamp !== timestamp))
             Alert.alert("Deleted", "Card deleted successfully")
           } else {
+            await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
             Alert.alert("Error", "Failed to delete card")
           }
         },
       },
     ])
+  }
+
+  const handleShareCard = async (card: Card) => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
+    setSelectedCard({
+      type: 'identity_card',
+      front: card.front,
+      back: card.back,
+      timestamp: card.timestamp,
+    })
+    setQrModalVisible(true)
   }
 
   if (loading) {
@@ -91,7 +109,10 @@ const FolderDetails: React.FC<FolderDetailsProps> = ({ folderName, createdDate, 
         <View className="flex-row items-center">
           <TouchableOpacity
             className="w-10 h-10 bg-gray-100 rounded-full items-center justify-center mr-3"
-            onPress={() => router.push("/screens/main")}
+            onPress={async () => {
+              await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+              router.push("/screens/main")
+            }}
           >
             <Ionicons name="arrow-back" size={20} color="#003554" />
           </TouchableOpacity>
@@ -109,7 +130,10 @@ const FolderDetails: React.FC<FolderDetailsProps> = ({ folderName, createdDate, 
       <ScrollView className="flex-1 px-6 py-4" style={styles.container}>
         <View className="bg-black rounded-2xl p-4 mb-1 shadow-sm">
         <TouchableOpacity
-            onPress={() => router.push("/screens/add-card")}
+            onPress={async () => {
+              await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
+              router.push("/screens/add-card")
+            }}
             className="flex-row items-center bg-black rounded-full px-6 py-4 shadow-sm mt-10">
             <Ionicons name="add" size={20} color="white" />
             <Text style={{ fontFamily: "Gilroy-SemiBold" }} className="text-white text-base font-semibold ml-2">
@@ -157,14 +181,23 @@ const FolderDetails: React.FC<FolderDetailsProps> = ({ folderName, createdDate, 
                 title="Ghana Card"
                 description={`Captured: ${new Date(card.timestamp).toLocaleString()}`}
               />
-              <TouchableOpacity
-                onPress={() => handleDeleteCard(card.timestamp)}
-                className="bg-red-600 px-6 py-4 shadow-sm rounded-full"
-              >
-                <Text style={{ fontFamily: "Gilroy-SemiBold" }} className="text-white text-center">
-                  Delete This Card
-                </Text>
-              </TouchableOpacity>
+              <View className="flex-row gap-3 mt-4">
+                <TouchableOpacity
+                  onPress={() => handleShareCard(card)}
+                  className="flex-1 bg-[#003554] px-6 py-4 shadow-sm rounded-full flex-row items-center justify-center"
+                >
+                  <Ionicons name="qr-code-outline" size={20} color="white" />
+                  <Text style={{ fontFamily: "Gilroy-SemiBold" }} className="text-white ml-2">
+                    Share QR
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => handleDeleteCard(card.timestamp)}
+                  className="bg-red-600 px-6 py-4 shadow-sm rounded-full"
+                >
+                  <Ionicons name="trash-outline" size={20} color="white" />
+                </TouchableOpacity>
+              </View>
             </View>
           ))
         ) : (
@@ -177,7 +210,10 @@ const FolderDetails: React.FC<FolderDetailsProps> = ({ folderName, createdDate, 
               Capture your IDs to display it here
             </Text>
              <TouchableOpacity
-            onPress={() => router.push("/screens/add-card")}
+            onPress={async () => {
+              await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
+              router.push("/screens/add-card")
+            }}
             className="flex-row items-center bg-black rounded-full px-6 py-4 shadow-sm mt-10">
             <Ionicons name="add" size={20} color="white" />
             <Text style={{ fontFamily: "Gilroy-SemiBold" }} className="text-white text-base font-semibold ml-2">
@@ -189,6 +225,13 @@ const FolderDetails: React.FC<FolderDetailsProps> = ({ folderName, createdDate, 
 
         <View className="h-24" />
       </ScrollView>
+      
+      <QRCodeModal
+        visible={qrModalVisible}
+        onClose={() => setQrModalVisible(false)}
+        cardData={selectedCard}
+        cardTitle="Identity Card"
+      />
     </SafeAreaView>
   )
 }
