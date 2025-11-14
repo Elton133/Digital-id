@@ -1,5 +1,6 @@
 import ActionButtons from "@/components/action-buttons"
 import AddFolderModal from "@/components/add-folder-modal"
+import FolderOptionsMenu from "@/components/FolderOptionsMenu"
 import GhanaCard3D from "@/components/card-component"
 // import { images } from "@/constants/images"
 import { Ionicons } from "@expo/vector-icons"
@@ -7,8 +8,10 @@ import { LinearGradient } from "expo-linear-gradient"
 import { router } from "expo-router"
 import type React from "react"
 import { useState } from "react"
-import { Platform, ScrollView, StatusBar, Text, TouchableOpacity, View } from "react-native"
+import { Platform, ScrollView, StatusBar, Text, TouchableOpacity, View, Alert } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
+import * as Haptics from 'expo-haptics'
+import QRCodeModal from "@/components/QRCodeModal"
 
 interface Folder {
   id: string
@@ -37,12 +40,18 @@ const Main: React.FC = () => {
   ])
 
   const [addFolderVisible, setAddFolderVisible] = useState(false)
+  const [optionsMenuVisible, setOptionsMenuVisible] = useState(false)
+  const [selectedFolder, setSelectedFolder] = useState<Folder | null>(null)
+  const [qrModalVisible, setQrModalVisible] = useState(false)
+  const [selectedCardData, setSelectedCardData] = useState<any>(null)
 
-  const handleAddFolder = () => {
+  const handleAddFolder = async () => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
     setAddFolderVisible(true)
   }
 
-  const handleCreateFolder = (name: string, color: [string, string], icon: string) => {
+  const handleCreateFolder = async (name: string, color: [string, string], icon: string) => {
+    await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
     const newFolder: Folder = {
       id: Date.now().toString(),
       name,
@@ -53,12 +62,48 @@ const Main: React.FC = () => {
     setFolders([...folders, newFolder])
   }
 
-  const handleQuickNote = () => {
+  const handleQuickNote = async () => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
     console.log("Quick note")
   }
 
-  const handleFolderPress = (folderId: string) => {
-    console.log("Open folder:", folderId)
+  const handleFolderPress = async (folderId: string) => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+    router.push("/screens/folder-details")
+  }
+
+  const handleFolderOptions = async (folder: Folder) => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+    setSelectedFolder(folder)
+    setOptionsMenuVisible(true)
+  }
+
+  const handleEditFolder = () => {
+    Alert.alert('Edit Folder', `Edit "${selectedFolder?.name}" functionality would go here`)
+  }
+
+  const handleShareFolder = () => {
+    if (selectedFolder) {
+      setSelectedCardData({ 
+        type: 'folder',
+        name: selectedFolder.name,
+        id: selectedFolder.id 
+      })
+      setQrModalVisible(true)
+    }
+  }
+
+  const handleDeleteFolder = async () => {
+    if (selectedFolder) {
+      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
+      setFolders(folders.filter(f => f.id !== selectedFolder.id))
+      Alert.alert('Deleted', `"${selectedFolder.name}" has been deleted`)
+    }
+  }
+
+  const handleProfilePress = async () => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
+    router.push('/screens/profile-screen')
   }
 
   return (
@@ -74,25 +119,45 @@ const Main: React.FC = () => {
       {/* Header */}
       <View className="flex-row items-center justify-between px-6 py-4 bg-white">
         <View className="flex-row items-center">
-          <View className="w-10 h-10 bg-[#003554] rounded-tr-lg rounded-br-2xl rounded-bl-lg rounded-tl-md items-center justify-center mr-3">
+          <TouchableOpacity 
+            onPress={handleProfilePress}
+            className="w-10 h-10 bg-[#003554] rounded-tr-lg rounded-br-2xl rounded-bl-lg rounded-tl-md items-center justify-center mr-3"
+          >
             <Text style={{ fontFamily: "Gilroy-SemiBold" }} className="text-white text-xl font-bold">
               E
             </Text>
             <View className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-400 rounded-full" />
-          </View>
+          </TouchableOpacity>
           <Text style={{ fontFamily: "Gilroy-SemiBold" }} className="text-xl font-semibold text-gray-800">
             Digital ID
           </Text>
         </View>
 
         <View className="flex-row items-center space-x-8 gap-2">
-          <TouchableOpacity className="w-10 h-10 bg-gray-100 rounded-full items-center justify-center">
+          <TouchableOpacity 
+            onPress={async () => {
+              await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+              router.push('/screens/documents-screen')
+            }}
+            className="w-10 h-10 bg-gray-100 rounded-full items-center justify-center"
+          >
             <Ionicons name="book-outline" size={20} color="#003554" />
           </TouchableOpacity>
-          <TouchableOpacity className="w-10 h-10 bg-gray-100 rounded-full items-center justify-center">
-            <Ionicons name="options-outline" size={20} color="#003554" />
+          <TouchableOpacity 
+            onPress={async () => {
+              await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+              router.push('/screens/emergency-access-screen')
+            }}
+            className="w-10 h-10 bg-gray-100 rounded-full items-center justify-center"
+          >
+            <Ionicons name="medical-outline" size={20} color="#003554" />
           </TouchableOpacity>
-          <TouchableOpacity className="w-10 h-10 bg-gray-100 rounded-full items-center justify-center">
+          <TouchableOpacity 
+            onPress={async () => {
+              await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+            }}
+            className="w-10 h-10 bg-gray-100 rounded-full items-center justify-center"
+          >
             <Ionicons name="folder-outline" size={20} color="#003554" />
           </TouchableOpacity>
         </View>
@@ -103,9 +168,7 @@ const Main: React.FC = () => {
         {folders.map((folder) => (
           <TouchableOpacity
             key={folder.id}
-            onPress={() => {
-              router.push("/screens/folder-details")
-            }}
+            onPress={() => handleFolderPress(folder.id)}
             className="flex-row items-center bg-white rounded-2xl p-4 mb-4 shadow-[2px_2px_2px_rgba(0,0,0,0.1)] "
           >
             <LinearGradient
@@ -133,7 +196,13 @@ const Main: React.FC = () => {
               </Text>
             </View>
 
-            <TouchableOpacity className="p-2">
+            <TouchableOpacity 
+              onPress={(e) => {
+                e.stopPropagation()
+                handleFolderOptions(folder)
+              }}
+              className="p-2"
+            >
               <Ionicons name="ellipsis-horizontal" size={20} color="#6b7280" />
             </TouchableOpacity>
           </TouchableOpacity>
@@ -147,6 +216,22 @@ const Main: React.FC = () => {
         visible={addFolderVisible}
         onClose={() => setAddFolderVisible(false)}
         onCreateFolder={handleCreateFolder}
+      />
+
+      <FolderOptionsMenu
+        visible={optionsMenuVisible}
+        onClose={() => setOptionsMenuVisible(false)}
+        folderName={selectedFolder?.name || ''}
+        onEdit={handleEditFolder}
+        onShare={handleShareFolder}
+        onDelete={handleDeleteFolder}
+      />
+
+      <QRCodeModal
+        visible={qrModalVisible}
+        onClose={() => setQrModalVisible(false)}
+        cardData={selectedCardData}
+        cardTitle={selectedCardData?.name || 'Folder'}
       />
     </SafeAreaView>
   )

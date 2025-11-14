@@ -6,38 +6,58 @@ import type React from "react"
 import { useEffect, useState } from "react"
 import { Alert, StatusBar, Text, TouchableOpacity, View } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
+import * as Haptics from 'expo-haptics'
+import {
+  authenticateWithBiometrics,
+  getBiometricPreference,
+  refreshSession,
+} from "@/lib/biometricAuth"
 
 const BiometricLoginScreen: React.FC = () => {
   const [authMethod, setAuthMethod] = useState<"faceId" | "fingerprint" | "pin">("faceId")
   const [isAuthenticating, setIsAuthenticating] = useState(false)
 
   useEffect(() => {
-    // Auto-trigger biometric authentication on screen load
-    handleBiometricAuth()
+    loadPreferenceAndAuthenticate()
   }, [])
+
+  const loadPreferenceAndAuthenticate = async () => {
+    const preference = await getBiometricPreference()
+    if (preference && preference !== 'pin') {
+      setAuthMethod(preference as "faceId" | "fingerprint")
+      await handleBiometricAuth()
+    } else {
+      setAuthMethod('fingerprint')
+      await handleBiometricAuth()
+    }
+  }
 
   const handleBiometricAuth = async () => {
     setIsAuthenticating(true)
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+    
     try {
-      // Simulate biometric authentication
-      await new Promise((resolve) => setTimeout(resolve, 2000))
+      const result = await authenticateWithBiometrics(
+        `Authenticate with ${authMethod === "faceId" ? "Face ID" : "Fingerprint"}`
+      )
 
-      // Simulate success/failure
-      const success = Math.random() > 0.3 // 70% success rate for demo
-
-      if (success) {
+      if (result.success) {
+        await refreshSession()
+        await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
         router.push("/screens/main")
       } else {
+        await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
         Alert.alert(
           "Authentication Failed",
-          `${authMethod === "faceId" ? "Face ID" : "Fingerprint"} authentication failed. Please try again.`,
+          result.error || "Authentication failed. Please try again.",
           [
             { text: "Try Again", onPress: handleBiometricAuth },
             { text: "Use PIN", onPress: () => router.push("/screens/pin-login-screen") },
           ]
         )
       }
-    } catch {
+    } catch (error) {
+      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
       Alert.alert("Error", "Authentication failed. Please try again.")
     } finally {
       setIsAuthenticating(false)

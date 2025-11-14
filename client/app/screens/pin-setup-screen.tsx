@@ -6,13 +6,17 @@ import type React from "react"
 import { useState } from "react"
 import { Alert, StatusBar, Text, TouchableOpacity, View } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
+import * as Haptics from 'expo-haptics'
+import { storePIN, setupSessionTimeout } from "@/lib/biometricAuth"
 
 const PinSetupScreen: React.FC = () => {
   const [pin, setPin] = useState("")
   const [confirmPin, setConfirmPin] = useState("")
   const [step, setStep] = useState<"create" | "confirm">("create")
 
-  const handleNumberPress = (number: string) => {
+  const handleNumberPress = async (number: string) => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+    
     if (step === "create") {
       if (pin.length < 6) {
         setPin(pin + number)
@@ -24,7 +28,9 @@ const PinSetupScreen: React.FC = () => {
     }
   }
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+    
     if (step === "create") {
       setPin(pin.slice(0, -1))
     } else {
@@ -32,18 +38,30 @@ const PinSetupScreen: React.FC = () => {
     }
   }
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
+    
     if (step === "create" && pin.length === 6) {
       setStep("confirm")
     } else if (step === "confirm" && confirmPin.length === 6) {
       if (pin === confirmPin) {
-        Alert.alert("PIN Created", "Your PIN has been set up successfully!", [
-          {
-            text: "Continue",
-            onPress: () => router.push("/screens/main"),
-          },
-        ])
+        try {
+          await storePIN(pin)
+          await setupSessionTimeout(5) // 5 minute session timeout
+          await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
+          
+          Alert.alert("PIN Created", "Your PIN has been set up successfully!", [
+            {
+              text: "Continue",
+              onPress: () => router.push("/screens/main"),
+            },
+          ])
+        } catch (error) {
+          await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
+          Alert.alert("Error", "Failed to save PIN. Please try again.")
+        }
       } else {
+        await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
         Alert.alert("PIN Mismatch", "PINs do not match. Please try again.", [
           {
             text: "OK",

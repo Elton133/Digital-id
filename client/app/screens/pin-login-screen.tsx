@@ -6,56 +6,68 @@ import type React from "react"
 import { useState } from "react"
 import { Alert, StatusBar, Text, TouchableOpacity, View } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
+import * as Haptics from 'expo-haptics'
+import { verifyPIN, refreshSession } from "@/lib/biometricAuth"
 
 const PinLoginScreen: React.FC = () => {
   const [pin, setPin] = useState("")
   const [attempts, setAttempts] = useState(0)
   const maxAttempts = 3
 
-  const handleNumberPress = (number: string) => {
+  const handleNumberPress = async (number: string) => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+    
     if (pin.length < 6) {
       const newPin = pin + number
       setPin(newPin)
 
       // Auto-verify when PIN is complete
       if (newPin.length === 6) {
-        verifyPin(newPin)
+        await verifyPinCode(newPin)
       }
     }
   }
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
     setPin(pin.slice(0, -1))
   }
 
-  const verifyPin = async (enteredPin: string) => {
-    // Simulate PIN verification
-    await new Promise((resolve) => setTimeout(resolve, 500))
-    
-    // For demo purposes, let's say the correct PIN is "123456"
-    if (enteredPin === "123456") {
-      router.push("/screens/main")
-    } else {
-      const newAttempts = attempts + 1
-      setAttempts(newAttempts)
-      setPin("")
-
-      if (newAttempts >= maxAttempts) {
-        Alert.alert(
-          "Too Many Attempts",
-          "You've exceeded the maximum number of attempts. Please sign in with your email and password.",
-          [
-            {
-              text: "Sign In",
-              onPress: () => router.push("/screens/auth/login-screen"),
-            },
-          ],
-        )
+  const verifyPinCode = async (enteredPin: string) => {
+    try {
+      const isValid = await verifyPIN(enteredPin)
+      
+      if (isValid) {
+        await refreshSession()
+        await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
+        router.push("/screens/main")
       } else {
-        Alert.alert("Incorrect PIN", `Wrong PIN. ${maxAttempts - newAttempts} attempts remaining.`, [
-          { text: "Try Again" },
-        ])
+        const newAttempts = attempts + 1
+        setAttempts(newAttempts)
+        setPin("")
+        await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
+
+        if (newAttempts >= maxAttempts) {
+          Alert.alert(
+            "Too Many Attempts",
+            "You've exceeded the maximum number of attempts. Please sign in with your email and password.",
+            [
+              {
+                text: "Sign In",
+                onPress: () => router.push("/screens/auth/login-screen"),
+              },
+            ],
+          )
+        } else {
+          Alert.alert("Incorrect PIN", `Wrong PIN. ${maxAttempts - newAttempts} attempts remaining.`, [
+            { text: "Try Again" },
+          ])
+        }
       }
+    } catch (error) {
+      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
+      Alert.alert("Error", "Failed to verify PIN. Please try again.")
+      setPin("")
     }
   }
 
